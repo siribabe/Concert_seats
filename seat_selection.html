@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Seat Selection Application</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            box-sizing: border-box;
+        }
+        .main-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 32px;
+            margin-top: 40px;
+            width: 1280px;         /* 750 + 32 + 350 */
+            max-width: 100vw;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .container {
+            background: #fff;
+            padding: 32px 40px 32px 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            width: 750px;
+            min-width: unset;
+            max-width: unset;
+            flex: none;
+        }
+        .concert-info {
+            background: #fff;
+            padding: 32px 40px 32px 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            width: 350px;
+            min-width: unset;
+            max-width: unset;
+            flex: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .concert-info h2 {
+            color: #1a73e8;
+            margin-bottom: 12px;
+        }
+        .concert-info .info-item {
+            margin-bottom: 14px;
+            font-size: 1.05rem;
+            color: #2d3a4b;
+        }
+        .concert-info .info-item.zone-area {
+            margin-bottom: 24px;
+        }
+        .concert-info label {
+            font-weight: 500;
+            color: #2d3a4b;
+        }
+        .concert-info select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #bfc9d1;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+        .concert-info .confirm-btn {
+            margin-top: 32px;
+            padding: 10px 0;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .concert-info .confirm-btn:hover {
+            background: #155ab6;
+        }
+        .concert-info .star-poster {
+            display: block;
+            margin: 16px auto 16px auto;
+            width: 300px;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+            object-fit: cover;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3a4b;
+            margin-bottom: 24px;
+        }
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+        .input-row label {
+            font-weight: 500;
+            color: #2d3a4b;
+        }
+        .input-row input {
+            width: 60px;
+            padding: 6px 8px;
+            border: 1px solid #bfc9d1;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .input-row button {
+            padding: 6px 18px;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .input-row button:hover {
+            background: #155ab6;
+        }
+        .seat-area {
+            margin: 0 auto 24px auto;
+            background: #e9eef3;
+            border-radius: 12px;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* min-width: 320px; */
+            border: 3px solid #bfc9d1;
+            box-sizing: content-box;
+            transition: width 0.2s, height 0.2s;
+            width: 700px;
+        }
+        .seat-area-header {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #1a73e8;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .seats-grid {
+            display: grid;
+            gap: 10px;
+            /* gridTemplateColumns 动态设置 */
+        }
+        .seat {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 2px solid #bfc9d1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            color: #2d3a4b;
+            cursor: pointer;
+            transition: background 0.2s, border 0.2s;
+            user-select: none;
+        }
+        .seat.selected {
+            background: #1a73e8;
+            color: #fff;
+            border-color: #1a73e8;
+        }
+        .row-label {
+            margin-right: 10px;
+            font-weight: 500;
+            color: #6b7a8f;
+            width: 28px;
+            text-align: right;
+        }
+        .output {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #1a73e8;
+            font-weight: 600;
+            min-height: 28px;
+        }
+        @media (max-width: 1000px) {
+            .main-layout {
+                flex-direction: column;
+                width: 98vw;
+                gap: 16px;
+            }
+        }
+        @media (max-width: 600px) {
+            .container, .concert-info {
+                min-width: unset;
+                padding: 16px 4px;
+            }
+            .seat-area {
+                min-width: unset;
+                padding: 12px 2px;
+            }
+        }
+        #countdown-timer {
+            width: 250px;
+            margin: 18px auto 8px auto;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e53935;
+            border: 2px solid #e53935;
+            border-radius: 10px;
+            padding: 10px 0;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        /* 工具栏样式 */
+        .toolbar {
+            width: 98.5%;
+            min-width: unset;
+            background: #fff;
+            border-bottom: 1.5px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            height: 56px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .toolbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-right: 32px;
+            letter-spacing: 2px;
+        }
+        .toolbar .nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .toolbar .nav a {
+            text-decoration: none;
+            color: #2d3a4b;
+            font-size: 1.08rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .toolbar .nav a:hover {
+            color: #1a73e8;
+        }
+        .toolbar .spacer {
+            flex: 1;
+        }
+        .toolbar .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f5f6fa;
+            border-radius: 20px;
+            padding: 0 10px;
+            margin-right: 18px;
+            border: 1px solid #e0e0e0;
+        }
+        .toolbar .search-bar input[type="text"] {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 1rem;
+            padding: 7px 8px;
+            width: 220px;
+        }
+        .toolbar .search-bar input[type="text"]::placeholder {
+            color: #b0b8c1;
+            font-size: 0.98rem;
+        }
+        .toolbar .search-btn, .toolbar .login-btn, .toolbar .download-btn {
+            margin-left: 8px;
+            padding: 6px 18px;
+            border: none;
+            border-radius: 18px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .toolbar .search-btn {
+            background: #1a73e8;
+            color: #fff;
+        }
+        .toolbar .search-btn:hover {
+            background: #155ab6;
+        }
+        .toolbar .login-btn {
+            background: #fff;
+            color: #1a73e8;
+            border: 1.5px solid #1a73e8;
+        }
+        .toolbar .login-btn:hover {
+            background: #e3f0ff;
+        }
+        .toolbar .download-btn {
+            background: #e53935;
+            color: #fff;
+        }
+        .toolbar .download-btn:hover {
+            background: #b71c1c;
+        }
+        /* 让内容下移避免被工具栏遮挡 */
+        body > #countdown-timer, body > .main-layout {
+            margin-top: 74px;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <span class="logo">siri</span>
+        <nav class="nav">
+            <a href="#">首页</a>
+            <a href="#">分类</a>
+        </nav>
+        <div class="spacer"></div>
+        <form class="search-bar" onsubmit="return false;">
+            <input type="text" placeholder="搜索明星、演出、体育赛事">
+        </form>
+        <button class="search-btn">搜索</button>
+        <button class="login-btn">登录</button>
+        <button class="download-btn">下载</button>
+    </div>
+    <div id="countdown-timer"></div>
+    <div class="main-layout">
+        <div class="container">
+            <h1>A Seat Selection Application</h1>
+            <div class="seat-area">
+                <div class="seat-area-header" id="seatAreaHeader">A区 101</div>
+                <div id="seats" class="seats-grid"></div>
+            </div>
+            <div class="output" id="output">&nbsp;</div>
+        </div>
+        <div class="concert-info">
+            <div>
+                <h2 id="concert-title">演唱会名称： THIS IS FOR</h2>
+                <img src="twice1.jpg" alt="明星海报" class="star-poster">
+                <div class="info-item"><strong>歌手：</strong>TWICE</div>
+                <div class="info-item"><strong>场地：</strong>澳门银河演艺馆</div>
+                <div class="info-item"><strong>时间：</strong>2025-08-27 18:00</div>
+                <div class="info-item">
+                    <label for="zone">座位选区/价位：</label>
+                    <select id="zone">
+                        <option value="A">A区（¥1280）</option>
+                        <option value="B">B区（¥880）</option>
+                        <option value="C">C区（¥580）</option>
+                        <option value="D">D区（¥380）</option>
+                    </select>
+                </div>
+                <div class="info-item zone-area">
+                    <label for="area">区域：</label>
+                    <select id="area">
+                        <!-- 选区切换时动态填充 -->
+                    </select>
+                </div>
+            </div>
+            <button class="confirm-btn" id="confirmBtn">确定选座</button>
+        </div>
+    </div>
+    <script>
+        // 倒计时功能
+        const timerDiv = document.getElementById('countdown-timer');
+        let totalSeconds = 15 * 60;
+        function formatTime(sec) {
+            const m = String(Math.floor(sec / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            return `${m}:${s}`;
+        }
+        function updateTimer() {
+            if (totalSeconds > 0) {
+                timerDiv.textContent = `请在 ${formatTime(totalSeconds)} 内完成选座`;
+                totalSeconds--;
+            } else {
+                timerDiv.textContent = '选座超时，请刷新页面';
+                clearInterval(timerInterval);
+            }
+        }
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+        const seatsDiv = document.getElementById('seats');
+        const outputDiv = document.getElementById('output');
+        const seatArea = document.querySelector('.seat-area');
+        const seatAreaHeader = document.getElementById('seatAreaHeader');
+
+        let lastSelected = null;
+
+        function createSeats() {
+            const r = 20;
+            const c = 30;
+            seatsDiv.innerHTML = '';
+            seatsDiv.style.gridTemplateColumns = `repeat(${c}, 1fr)`;
+            // 计算座位图宽高
+            const seatSize = 24;
+            const gap = 10;
+            const borderPad = 32; // seat-area padding
+            const width = c * seatSize + (c - 1) * gap + borderPad;
+            const height = r * seatSize + (r - 1) * gap + borderPad;
+            // seatArea.style.width = width + 'px'; // 注释掉或删除这一行
+            // seatArea.style.height = height + 'px'; // 注释掉或删除这一行
+            for (let i = 1; i <= r; i++) {
+                for (let j = 1; j <= c; j++) {
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.textContent = j;
+                    seat.title = `Row ${i}, Seat ${j}`;
+                    seat.dataset.row = i;
+                    seat.dataset.col = j;
+                    seat.onclick = function() {
+                        if (lastSelected) lastSelected.classList.remove('selected');
+                        seat.classList.add('selected');
+                        lastSelected = seat;
+                        outputDiv.textContent = `${i}排${j}列`;
+                        updateSeatAreaHeader(j); // 点击时更新上方显示
+                    };
+                    seatsDiv.appendChild(seat);
+                }
+            }
+        }
+
+        // 初始化固定座位
+        createSeats();
+
+        // 区域数据
+        const areaOptions = {
+            'A': Array.from({length: 10}, (_, i) => 101 + i),
+            'B': Array.from({length: 10}, (_, i) => 201 + i),
+            'C': Array.from({length: 10}, (_, i) => 301 + i),
+            'D': Array.from({length: 10}, (_, i) => 401 + i)
+        };
+        const zoneSelect = document.getElementById('zone');
+        const areaSelect = document.getElementById('area');
+
+        function updateAreaOptions(zone) {
+            areaSelect.innerHTML = '';
+            const areas = areaOptions[zone] || [];
+            if (areas.length === 0) {
+                areaSelect.disabled = true;
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = '无';
+                areaSelect.appendChild(opt);
+            } else {
+                areaSelect.disabled = false;
+                areas.forEach(a => {
+                    const opt = document.createElement('option');
+                    opt.value = a;
+                    opt.textContent = a;
+                    areaSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function updateSeatAreaHeader(seatNumber) {
+            const zoneText = zoneSelect.options[zoneSelect.selectedIndex].text.split('（')[0];
+            let areaText = areaSelect.value;
+            let seatText = seatNumber ? `-${seatNumber}` : '';
+            if (areaSelect.disabled || !areaText) {
+                seatAreaHeader.textContent = zoneText + seatText;
+            } else {
+                seatAreaHeader.textContent = `${zoneText} ${areaText}${seatText}`;
+            }
+        }
+
+        // 初始化区域下拉框
+        updateAreaOptions(zoneSelect.value);
+        zoneSelect.addEventListener('change', function() {
+            updateAreaOptions(this.value);
+            updateSeatAreaHeader();
+        });
+        areaSelect.addEventListener('change', function() {
+            updateSeatAreaHeader();
+        });
+
+        // 初始化显示
+        updateSeatAreaHeader();
+
+        document.getElementById('confirmBtn').onclick = function() {
+            // 获取当前选中的座位
+            var seat = document.querySelector('.seat.selected');
+            if (!seat) {
+                alert('请先选择座位！');
+                return;
+            }
+            // 获取区号和小区号
+            var zone = document.getElementById('zone').value;
+            var area = document.getElementById('area').value;
+            var row = seat.dataset.row;
+            var col = seat.dataset.col;
+
+            // 获取票价
+            var price = document.querySelector('#zone option:checked').text.match(/¥(\d+)/);
+            price = price ? price[1] : '';
+
+            // 保存选座信息到 localStorage
+            localStorage.setItem('selected_seat', JSON.stringify({
+                zone: zone,
+                area: area,
+                row: row,
+                col: col,
+                price: price
+            }));
+
+            // 保存演唱会信息到 localStorage
+            localStorage.setItem('concert_info', JSON.stringify({
+                title: document.getElementById('concert-title').textContent.replace('演唱会名称：', '').trim(),
+                star: document.querySelector('.concert-info .info-item strong').nextSibling.textContent.trim(),
+                place: document.querySelectorAll('.concert-info .info-item')[1].textContent.replace('场地：', '').trim(),
+                time: document.querySelectorAll('.concert-info .info-item')[2].textContent.replace('时间：', '').trim()
+            }));
+
+            // 保存倒计时并跳转
+            localStorage.setItem('seat_countdown_remain', totalSeconds);
+            window.location.href = 'confirm_info.html';
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>确认个人信息与付款</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            box-sizing: border-box;
+            background: #f7f7f7;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .countdown {
+            width: 250px;
+            margin: 24px auto 16px auto;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e53935;
+            border: 2px solid #e53935;
+            border-radius: 10px;
+            padding: 10px 0;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        .main-box {
+            background: #fff;
+            width: 600px;
+            margin: 0 auto 32px auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 40px 32px 40px;
+        }
+        h2 {
+            color: #1a73e8;
+            margin-bottom: 18px;
+        }
+        .section {
+            margin-bottom: 32px;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .form-row label {
+            width: 110px;
+            font-weight: 500;
+            color: #2d3a4b;
+            margin-right: 10px;
+        }
+        .form-row input, .form-row select {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid #bfc9d1;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .form-row select {
+            min-width: 80px;
+        }
+        .form-row .phone-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 1;
+        }
+        .ticket-methods {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 18px;
+        }
+        .address-group {
+            margin-left: 120px;
+            margin-bottom: 10px;
+        }
+        .address-group select, .address-group input {
+            margin-bottom: 10px;
+            width: 180px;
+        }
+        .address-group input[type="text"] {
+            width: 320px;
+        }
+        .pay-methods {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 18px;
+        }
+        .pay-methods label {
+            font-weight: 500;
+            color: #2d3a4b;
+            margin-right: 8px;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px 0;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: background 0.2s;
+        }
+        .submit-btn:hover {
+            background: #155ab6;
+        }
+        /* 工具栏样式 */
+        .toolbar {
+            width: 98.5%;
+            min-width: unset;
+            background: #fff;
+            border-bottom: 1.5px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            height: 56px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .toolbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-right: 32px;
+            letter-spacing: 2px;
+        }
+        .toolbar .nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .toolbar .nav a {
+            text-decoration: none;
+            color: #2d3a4b;
+            font-size: 1.08rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .toolbar .nav a:hover {
+            color: #1a73e8;
+        }
+        .toolbar .spacer {
+            flex: 1;
+        }
+        .toolbar .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f5f6fa;
+            border-radius: 20px;
+            padding: 0 10px;
+            margin-right: 18px;
+            border: 1px solid #e0e0e0;
+        }
+        .toolbar .search-bar input[type="text"] {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 1rem;
+            padding: 7px 8px;
+            width: 220px;
+        }
+        .toolbar .search-bar input[type="text"]::placeholder {
+            color: #b0b8c1;
+            font-size: 0.98rem;
+        }
+        .toolbar .search-btn, .toolbar .login-btn, .toolbar .download-btn {
+            margin-left: 8px;
+            padding: 6px 18px;
+            border: none;
+            border-radius: 18px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .toolbar .search-btn {
+            background: #1a73e8;
+            color: #fff;
+        }
+        .toolbar .search-btn:hover {
+            background: #155ab6;
+        }
+        .toolbar .login-btn {
+            background: #fff;
+            color: #1a73e8;
+            border: 1.5px solid #1a73e8;
+        }
+        .toolbar .login-btn:hover {
+            background: #e3f0ff;
+        }
+        .toolbar .download-btn {
+            background: #e53935;
+            color: #fff;
+        }
+        .toolbar .download-btn:hover {
+            background: #b71c1c;
+        }
+        /* 让内容下移避免被工具栏遮挡 */
+        body > .countdown, body > .concert-summary, body > .main-box {
+            margin-top: 74px;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <span class="logo">siri</span>
+        <nav class="nav">
+            <a href="#">首页</a>
+            <a href="#">分类</a>
+        </nav>
+        <div class="spacer"></div>
+        <form class="search-bar" onsubmit="return false;">
+            <input type="text" placeholder="搜索明星、演出、体育赛事">
+        </form>
+        <button class="search-btn">搜索</button>
+        <button class="login-btn">登录</button>
+        <button class="download-btn">下载</button>
+    </div>
+    <div class="countdown" id="countdown"></div>
+    <div class="concert-summary" style="background:#fff;width:600px;margin:0 auto 24px auto;padding:24px 40px 18px 40px;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);display:flex;gap:24px;align-items:center;">
+        <img src="twice1.jpg" alt="演唱会海报" style="width:120px;height:auto;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <div style="flex:1;">
+            <div style="font-size:1.18rem;font-weight:600;color:#1a73e8;margin-bottom:6px;" id="concertTitle">演唱会名称</div>
+            <div style="margin-bottom:4px;"><strong>明星：</strong><span id="concertStar">TWICE</span></div>
+            <div style="margin-bottom:4px;"><strong>地点：</strong><span id="concertPlace">澳门银河演艺馆</span></div>
+            <div style="margin-bottom:4px;"><strong>时间：</strong><span id="concertTime">2025-08-27 18:00</span></div>
+            <div style="margin-top:8px;font-size:1.08rem;color:#e53935;"><strong>已选座位：</strong><span id="seatInfo">A区-101-1排1列</span></div>
+            <div style="margin-top:8px;font-size:1.08rem;color:#e53935;"><strong>应付票价：</strong><span id="seatPrice">--</span> 元</div>
+        </div>
+    </div>
+    <div class="main-box">
+        <h2>填写个人信息</h2>
+        <form id="infoForm">
+            <div class="section">
+                <div class="form-row">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-row">
+                    <label for="dob">出生年月日</label>
+                    <input type="date" id="dob" name="dob" required>
+                </div>
+                <div class="form-row">
+                    <label for="idnum">证件号码</label>
+                    <input type="text" id="idnum" name="idnum" required>
+                </div>
+                <div class="form-row">
+                    <label>电话号码</label>
+                    <div class="phone-group">
+                        <select id="phone-region" name="phone-region">
+                            <option value="86">中国内地 +86</option>
+                            <option value="852">中国香港 +852</option>
+                            <option value="853">中国澳门 +853</option>
+                            <option value="886">中国台湾 +886</option>
+                        </select>
+                        <input type="text" id="phone" name="phone" required placeholder="请输入手机号">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+            </div>
+            <div class="section">
+                <h2>取票信息</h2>
+                <div class="ticket-methods">
+                    <label><input type="radio" name="ticket-method" value="self" checked> 自助机器取票</label>
+                    <label><input type="radio" name="ticket-method" value="express"> 快递取票</label>
+                </div>
+                <div id="address-fields" style="display:none;">
+                    <div class="address-group">
+                        <select id="region" name="region">
+                            <option value="中国大陆">中国大陆</option>
+                            <option value="中国香港">中国香港</option>
+                            <option value="中国澳门">中国澳门</option>
+                            <option value="中国台湾">中国台湾</option>
+                        </select>
+                        <select id="province" name="province"></select>
+                        <select id="city" name="city"></select>
+                        <select id="county" name="county"></select>
+                    </div>
+                    <div class="address-group">
+                        <input type="text" id="detail-address" name="detail-address" placeholder="详细地址">
+                    </div>
+                    <div class="address-group">
+                        <input type="text" id="postcode" name="postcode" placeholder="邮编">
+                        <input type="text" id="receiver" name="receiver" placeholder="收件人姓名">
+                        <select id="receiver-region" name="receiver-region">
+                            <option value="86">中国内地 +86</option>
+                            <option value="852">中国香港 +852</option>
+                            <option value="853">中国澳门 +853</option>
+                            <option value="886">中国台湾 +886</option>
+                        </select>
+                        <input type="text" id="receiver-phone" name="receiver-phone" placeholder="收件人电话">
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <h2>付款信息</h2>
+                <div class="pay-methods">
+                    <label><input type="radio" name="pay-method" value="debit" checked> 银行卡（储蓄卡）</label>
+                    <label><input type="radio" name="pay-method" value="credit"> 银行卡（信用卡）</label>
+                    <label><input type="radio" name="pay-method" value="alipay"> 支付宝</label>
+                    <label><input type="radio" name="pay-method" value="wechat"> 微信</label>
+                    <label><input type="radio" name="pay-method" value="alipayhk"> AlipayHK</label>
+                    <label><input type="radio" name="pay-method" value="payme"> PayMe</label>
+                </div>
+                <div id="card-fields" style="display:block;">
+                    <div class="form-row">
+                        <label for="card-number">卡号</label>
+                        <input type="text" id="card-number" name="card-number" maxlength="19" placeholder="请输入银行卡号">
+                    </div>
+                    <div class="form-row">
+                        <label for="card-name">姓名</label>
+                        <input type="text" id="card-name" name="card-name" placeholder="持卡人姓名">
+                    </div>
+                    <div class="form-row">
+                        <label for="card-expiry">失效日期</label>
+                        <input type="month" id="card-expiry" name="card-expiry" placeholder="MM/YY">
+                    </div>
+                    <div class="form-row">
+                        <label for="card-cvv">安全码</label>
+                        <input type="password" id="card-cvv" name="card-cvv" maxlength="4" placeholder="CVV">
+                    </div>
+                </div>
+            </div>
+            <button class="submit-btn" type="submit">确认付款</button>
+        </form>
+    </div>
+    <script>
+        // ----------- 跨页倒计时同步 -------------
+        function getRemainSeconds() {
+            let remain = localStorage.getItem('seat_countdown_remain');
+            if (remain !== null) return parseInt(remain);
+            return 15 * 60;
+        }
+        function setRemainSeconds(val) {
+            localStorage.setItem('seat_countdown_remain', val);
+        }
+        let totalSeconds = getRemainSeconds();
+        const countdownDiv = document.getElementById('countdown');
+        function formatTime(sec) {
+            const m = String(Math.floor(sec / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            return `${m}:${s}`;
+        }
+        function updateTimer() {
+            if (totalSeconds > 0) {
+                countdownDiv.textContent = `请在 ${formatTime(totalSeconds)} 内完成选座`;
+                totalSeconds--;
+                setRemainSeconds(totalSeconds);
+            } else {
+                countdownDiv.textContent = '选座超时，请刷新页面';
+                clearInterval(timerInterval);
+            }
+        }
+        updateTimer();
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // ----------- 取票方式切换 -------------
+        const ticketRadios = document.getElementsByName('ticket-method');
+        const addressFields = document.getElementById('address-fields');
+        ticketRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'express') {
+                    addressFields.style.display = '';
+                } else {
+                    addressFields.style.display = 'none';
+                }
+            });
+        });
+
+        // ----------- 地址联动数据 -------------
+        // 这里只列举部分省会和主要城市，实际可扩展
+        const provinces = {
+            '中国大陆': ['北京市','上海市','广东省','江苏省','浙江省','山东省','四川省','湖北省','福建省','辽宁省','陕西省','重庆市','天津市','河北省','山西省','河南省','吉林省','黑龙江省','安徽省','江西省','广西壮族自治区','云南省','贵州省','甘肃省','海南省','青海省','宁夏回族自治区','新疆维吾尔自治区','内蒙古自治区','西藏自治区'],
+            '中国香港': ['香港特别行政区'],
+            '中国澳门': ['澳门特别行政区'],
+            '中国台湾': ['台北市','新北市','台中市','台南市','高雄市','基隆市','新竹市','嘉义市']
+        };
+        const cities = {
+            '北京市': ['北京市'],
+            '上海市': ['上海市'],
+            '广东省': ['广州市','深圳市','珠海市','佛山市','东莞市'],
+            '江苏省': ['南京市','苏州市','无锡市','常州市'],
+            '浙江省': ['杭州市','宁波市','温州市'],
+            '山东省': ['济南市','青岛市','烟台市'],
+            '四川省': ['成都市','绵阳市','德阳市'],
+            '湖北省': ['武汉市','宜昌市','襄阳市'],
+            '福建省': ['福州市','厦门市','泉州市'],
+            '辽宁省': ['沈阳市','大连市','鞍山市'],
+            '陕西省': ['西安市','咸阳市','宝鸡市'],
+            '重庆市': ['重庆市'],
+            '天津市': ['天津市'],
+            '河北省': ['石家庄市','唐山市','保定市'],
+            '山西省': ['太原市','大同市','运城市'],
+            '河南省': ['郑州市','洛阳市','开封市'],
+            '吉林省': ['长春市','吉林市','四平市'],
+            '黑龙江省': ['哈尔滨市','齐齐哈尔市','牡丹江市'],
+            '安徽省': ['合肥市','芜湖市','蚌埠市'],
+            '江西省': ['南昌市','九江市','赣州市'],
+            '广西壮族自治区': ['南宁市','柳州市','桂林市'],
+            '云南省': ['昆明市','曲靖市','玉溪市'],
+            '贵州省': ['贵阳市','遵义市','安顺市'],
+            '甘肃省': ['兰州市','天水市','白银市'],
+            '海南省': ['海口市','三亚市'],
+            '青海省': ['西宁市','海东市'],
+            '宁夏回族自治区': ['银川市','石嘴山市','吴忠市'],
+            '新疆维吾尔自治区': ['乌鲁木齐市','克拉玛依市'],
+            '内蒙古自治区': ['呼和浩特市','包头市','赤峰市'],
+            '西藏自治区': ['拉萨市'],
+            '香港特别行政区': ['香港岛','九龙','新界'],
+            '澳门特别行政区': ['澳门半岛','氹仔','路环'],
+            '台北市': ['台北市'],
+            '新北市': ['新北市'],
+            '台中市': ['台中市'],
+            '台南市': ['台南市'],
+            '高雄市': ['高雄市'],
+            '基隆市': ['基隆市'],
+            '新竹市': ['新竹市'],
+            '嘉义市': ['嘉义市']
+        };
+        const counties = {
+            '广州市': ['越秀区','荔湾区','天河区'],
+            '深圳市': ['福田区','罗湖区','南山区'],
+            '北京市': ['东城区','西城区','朝阳区','海淀区'],
+            '上海市': ['黄浦区','徐汇区','浦东新区'],
+            // 其他城市可补充
+        };
+        const provinceSel = document.getElementById('province');
+        const citySel = document.getElementById('city');
+        const countySel = document.getElementById('county');
+        const regionSel = document.getElementById('region');
+        function updateProvince() {
+            const region = regionSel.value;
+            provinceSel.innerHTML = '';
+            (provinces[region]||[]).forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                provinceSel.appendChild(opt);
+            });
+            updateCity();
+        }
+        function updateCity() {
+            const province = provinceSel.value;
+            citySel.innerHTML = '';
+            (cities[province]||[province]).forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                citySel.appendChild(opt);
+            });
+            updateCounty();
+        }
+        function updateCounty() {
+            const city = citySel.value;
+            countySel.innerHTML = '';
+            (counties[city]||[city]).forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                countySel.appendChild(opt);
+            });
+        }
+        regionSel.addEventListener('change', updateProvince);
+        provinceSel.addEventListener('change', updateCity);
+        citySel.addEventListener('change', updateCounty);
+        // 初始化
+        updateProvince();
+
+        // ----------- 选座信息回显 -------------
+        function showSeatInfo() {
+            // 读取演唱会信息
+            let concert = localStorage.getItem('concert_info');
+            if (concert) {
+                try {
+                    concert = JSON.parse(concert);
+                    document.getElementById('concertTitle').textContent = concert.title;
+                    document.getElementById('concertStar').textContent = concert.star;
+                    document.getElementById('concertPlace').textContent = concert.place;
+                    document.getElementById('concertTime').textContent = concert.time;
+                } catch(e) {}
+            }
+            // 读取座位信息
+            let seat = localStorage.getItem('selected_seat');
+            let seatStr = '未选择';
+            let priceStr = '--';
+            if (seat) {
+                try {
+                    seat = JSON.parse(seat);
+                    seatStr = `${seat.zone}区-${seat.area}-${seat.row}排${seat.col}列`;
+                    priceStr = seat.price || '--';
+                } catch(e) {}
+            }
+            document.getElementById('seatInfo').textContent = seatStr;
+            document.getElementById('seatPrice').textContent = priceStr;
+        }
+        showSeatInfo();
+
+        // ----------- 付款方式切换，银行卡时显示卡信息 -------------
+        const payRadios = document.getElementsByName('pay-method');
+        const cardFields = document.getElementById('card-fields');
+        function updateCardFields() {
+            const val = document.querySelector('input[name="pay-method"]:checked').value;
+            if (val === 'debit' || val === 'credit') {
+                cardFields.style.display = 'block';
+            } else {
+                cardFields.style.display = 'none';
+            }
+        }
+        payRadios.forEach(radio => {
+            radio.addEventListener('change', updateCardFields);
+        });
+        updateCardFields();
+
+        // ----------- 表单提交拦截 -------------
+        document.getElementById('infoForm').onsubmit = function(e) {
+            e.preventDefault();
+            // 保存观演人姓名
+            localStorage.setItem('viewer_name', document.getElementById('name').value);
+            // 保存取票方式
+            localStorage.setItem('ticket_method', document.querySelector('input[name="ticket-method"]:checked').value);
+            // 跳转到支付成功页
+            window.location.href = 'payment_success.html';
+        };
+    </script>
+</body>
+</html> 

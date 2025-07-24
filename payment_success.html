@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购票成功</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            box-sizing: border-box;
+            background: #f7f7f7;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .success-box {
+            background: #fff;
+            width: 480px;
+            margin: 60px auto 0 auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 36px 32px 36px;
+            text-align: center;
+        }
+        .success-title {
+            color: #1a73e8;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+        .order-info {
+            font-size: 0.98rem;
+            color: #444;
+            text-align: left;
+            margin-top: 18px;
+            line-height: 1.8;
+        }
+        .order-info strong {
+            color: #1a73e8;
+            font-weight: 600;
+        }
+        .order-info .label {
+            display: inline-block;
+            width: 90px;
+            color: #888;
+        }
+        /* 工具栏样式 */
+        .toolbar {
+            width: 98.5%;
+            min-width: unset;
+            background: #fff;
+            border-bottom: 1.5px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            height: 56px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .toolbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-right: 32px;
+            letter-spacing: 2px;
+        }
+        .toolbar .nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .toolbar .nav a {
+            text-decoration: none;
+            color: #2d3a4b;
+            font-size: 1.08rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .toolbar .nav a:hover {
+            color: #1a73e8;
+        }
+        .toolbar .spacer {
+            flex: 1;
+        }
+        .toolbar .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f5f6fa;
+            border-radius: 20px;
+            padding: 0 10px;
+            margin-right: 18px;
+            border: 1px solid #e0e0e0;
+        }
+        .toolbar .search-bar input[type="text"] {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 1rem;
+            padding: 7px 8px;
+            width: 220px;
+        }
+        .toolbar .search-bar input[type="text"]::placeholder {
+            color: #b0b8c1;
+            font-size: 0.98rem;
+        }
+        .toolbar .search-btn, .toolbar .login-btn, .toolbar .download-btn {
+            margin-left: 8px;
+            padding: 6px 18px;
+            border: none;
+            border-radius: 18px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .toolbar .search-btn {
+            background: #1a73e8;
+            color: #fff;
+        }
+        .toolbar .search-btn:hover {
+            background: #155ab6;
+        }
+        .toolbar .login-btn {
+            background: #fff;
+            color: #1a73e8;
+            border: 1.5px solid #1a73e8;
+        }
+        .toolbar .login-btn:hover {
+            background: #e3f0ff;
+        }
+        .toolbar .download-btn {
+            background: #e53935;
+            color: #fff;
+        }
+        .toolbar .download-btn:hover {
+            background: #b71c1c;
+        }
+        /* 让内容下移避免被工具栏遮挡 */
+        .success-box {
+            margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <span class="logo">siri</span>
+        <nav class="nav">
+            <a href="#">首页</a>
+            <a href="#">分类</a>
+        </nav>
+        <div class="spacer"></div>
+        <form class="search-bar" onsubmit="return false;">
+            <input type="text" placeholder="搜索明星、演出、体育赛事">
+        </form>
+        <button class="search-btn">搜索</button>
+        <button class="login-btn">登录</button>
+        <button class="download-btn">下载</button>
+    </div>
+    <div class="success-box">
+        <div class="success-title">购票成功</div>
+        <div class="order-info">
+            <div><span class="label">订单编号</span><strong id="orderId"></strong></div>
+            <div><span class="label">演唱会</span><span id="concertTitle"></span></div>
+            <div><span class="label">时间</span><span id="concertTime"></span></div>
+            <div><span class="label">地点</span><span id="concertPlace"></span></div>
+            <div><span class="label">票数</span><span id="ticketCount">1</span></div>
+            <div><span class="label">座位</span><span id="seatInfo"></span></div>
+            <div><span class="label">观演人</span><span id="viewerName"></span></div>
+            <div><span class="label">取票方式</span><span id="ticketMethod"></span></div>
+        </div>
+    </div>
+    <script>
+        // 生成16位随机订单号
+        function randomOrderId() {
+            let s = '';
+            for(let i=0;i<16;i++) s += Math.floor(Math.random()*10);
+            return s;
+        }
+        document.getElementById('orderId').textContent = randomOrderId();
+
+        // 读取演唱会信息
+        let concert = localStorage.getItem('concert_info');
+        if (concert) {
+            try {
+                concert = JSON.parse(concert);
+                document.getElementById('concertTitle').textContent = concert.title;
+                document.getElementById('concertPlace').textContent = concert.place;
+                document.getElementById('concertTime').textContent = concert.time;
+            } catch(e) {}
+        }
+        // 读取座位信息
+        let seat = localStorage.getItem('selected_seat');
+        if (seat) {
+            try {
+                seat = JSON.parse(seat);
+                document.getElementById('seatInfo').textContent = `${seat.zone}区-${seat.area}-${seat.row}排${seat.col}列`;
+            } catch(e) {}
+        }
+        // 读取观演人姓名
+        let viewer = localStorage.getItem('viewer_name');
+        if (viewer) {
+            document.getElementById('viewerName').textContent = viewer;
+        }
+        // 读取取票方式
+        let ticketMethod = localStorage.getItem('ticket_method');
+        if (ticketMethod) {
+            document.getElementById('ticketMethod').textContent = ticketMethod === 'self' ? '自助机器取票' : '快递取票';
+        }
+    </script>
+</body>
+</html> 
