@@ -136,7 +136,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* min-width: 320px; */
             border: 3px solid #bfc9d1;
             box-sizing: content-box;
             transition: width 0.2s, height 0.2s;
@@ -337,6 +336,13 @@
     <div class="main-layout">
         <div class="container">
             <h1>A Seat Selection Application</h1>
+            <div class="input-row">
+                <label for="rows">Rows (R):</label>
+                <input type="number" id="rows" min="1" max="50" value="20">
+                <label for="cols">Seats/Row (C):</label>
+                <input type="number" id="cols" min="1" max="40" value="30">
+                <button id="generate">生成</button>
+            </div>
             <div class="seat-area">
                 <div class="seat-area-header" id="seatAreaHeader">A区 101</div>
                 <div id="seats" class="seats-grid"></div>
@@ -388,27 +394,28 @@
             }
         }
         updateTimer();
-        const timerInterval = setInterval(updateTimer, 1000);
         const seatsDiv = document.getElementById('seats');
         const outputDiv = document.getElementById('output');
         const seatArea = document.querySelector('.seat-area');
         const seatAreaHeader = document.getElementById('seatAreaHeader');
+        const rowsInput = document.getElementById('rows');
+        const colsInput = document.getElementById('cols');
+        const generateBtn = document.getElementById('generate');
 
         let lastSelected = null;
+        let currentRows = parseInt(rowsInput.value);
+        let currentCols = parseInt(colsInput.value);
 
-        function createSeats() {
-            const r = 20;
-            const c = 30;
+        function createSeats(r, c) {
             seatsDiv.innerHTML = '';
-            seatsDiv.style.gridTemplateColumns = `repeat(${c}, 1fr)`;
-            // 计算座位图宽高
-            const seatSize = 24;
+            // 计算每个座位的宽度
+            const areaWidth = 700;
             const gap = 10;
-            const borderPad = 32; // seat-area padding
-            const width = c * seatSize + (c - 1) * gap + borderPad;
-            const height = r * seatSize + (r - 1) * gap + borderPad;
-            // seatArea.style.width = width + 'px'; // 注释掉或删除这一行
-            // seatArea.style.height = height + 'px'; // 注释掉或删除这一行
+            const padding = 16; // seat-area padding-left/right
+            let seatSize = Math.floor((areaWidth - (c - 1) * gap - 2 * padding) / c);
+            seatSize = Math.max(8, seatSize); // 最小8px
+            seatsDiv.style.gridTemplateColumns = `repeat(${c}, ${seatSize}px)`;
+            seatsDiv.style.gap = gap + 'px';
             for (let i = 1; i <= r; i++) {
                 for (let j = 1; j <= c; j++) {
                     const seat = document.createElement('div');
@@ -417,6 +424,7 @@
                     seat.title = `Row ${i}, Seat ${j}`;
                     seat.dataset.row = i;
                     seat.dataset.col = j;
+                    seat.style.width = seat.style.height = seatSize + 'px';
                     seat.onclick = function() {
                         if (lastSelected) lastSelected.classList.remove('selected');
                         seat.classList.add('selected');
@@ -429,8 +437,24 @@
             }
         }
 
-        // 初始化固定座位
-        createSeats();
+        generateBtn.onclick = function() {
+            let r = parseInt(rowsInput.value);
+            let c = parseInt(colsInput.value);
+            if (isNaN(r) || r < 1) r = 1;
+            if (isNaN(c) || c < 1) c = 1;
+            if (c > 40) {
+                c = 40;
+                colsInput.value = 40;
+            }
+            currentRows = r;
+            currentCols = c;
+            createSeats(r, c);
+            outputDiv.textContent = '\u00A0';
+            lastSelected = null;
+        };
+
+        // 初始化默认座位
+        createSeats(currentRows, currentCols);
 
         // 区域数据
         const areaOptions = {
